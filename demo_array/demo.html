@@ -1,0 +1,315 @@
+<!--
+   -    Create by Allen.sun on 2020/07/29
+   -    Module: 
+   -    Collaborator: 
+   -    Description: 
+   -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>sun_verifyForObject</title>
+    <style>
+        body {
+            font-family: 微软雅黑;
+            background: #eee;
+            padding-top: 50px;
+        }
+        .demo__wrap {
+            width: 1200px;
+            margin: 0 auto;
+            background: #fff;
+        }
+        .demo__wrap_title {
+            font-weight: 600;
+            font-size: 16px;
+            padding: 10px 20px;
+        }
+        .demo__wrap_content {
+            display: flex;
+            padding: 10px 0
+        }
+        .demo__layout_row {
+            flex-direction: column;
+        }
+        .demo__content_item {
+            flex: 1;
+            padding: 10px 20px
+        }
+        .demo__content_full {
+            flex: 1;
+        }
+        .demo__el_text {
+            display: inline-block;
+            width: 96%;
+            height: 100px;
+            margin: 0 auto;
+            flex: 1;
+        }
+        .demo__head {
+            position: fixed;
+            top: 0;
+            background: #fff;
+        }
+    </style>
+
+
+</head>
+<body>
+    <div class="demo__wrap" id="app">
+        <div class="demo__wrap_title">基本信息</div>
+        <div class="demo__work">
+            <div class="demo__wrap_content">
+                <div class="demo__content_item">
+                    姓名
+                    <input type="text" v-model="base.name" class="sun_verify_base"   data-verflykey="name">
+                    <div class="sun_verify_require_base"  data-requirekey="name"></div>
+                </div>
+                <div class="demo__content_item">
+                    生日
+                    <input type="text" v-model="base.birthdate"  class="sun_verify_base" data-verflykey="birthdate" >
+                    <div class="sun_verify_require_base" data-requirekey="birthdate" ></div>
+                </div>
+            </div>
+            <div class="demo__wrap_content demo__layout_row">
+                <div class="demo__content_full" style="padding-left: 20px">性别</div>
+                <select v-model="base.gender"  class="sun_verify_base"   data-verflykey="gender">
+                    <option value="0">请选择</option>
+                    <option value="1">男</option>
+                    <option value="2">女</option>
+                </select>
+                <div class="sun_verify_require_base" data-requirekey="gender" ></div>
+            </div>
+            <div class="demo__wrap_content demo__layout_row">
+                <div class="demo__content_full" style="padding-left: 20px">地址</div>
+                <input  v-model="base.address" style="margin: 0 20px;" class="sun_verify_base" data-verflykey="address" />
+                <div class="sun_verify_require_base" data-requirekey="address" ></div>
+            </div>
+            <div class="demo__wrap_content demo__layout_row">
+                <div class="demo__content_full" style="padding-left: 20px">个人简介</div>
+                <textarea  class="demo__el_text sun_verify_base" cols="30" rows="10" v-model="base.intro" data-verflykey="intro"></textarea>
+                <div class="sun_verify_require_base" data-requirekey="intro" ></div>
+            </div>
+        </div>
+        <div class="demo__wrap_title">工作经历</div>
+        <div class="demo__work" v-for="item in workList">
+            <div class="demo__wrap_content">
+                <div class="demo__content_item">
+                    所在公司
+                    <input type="text" v-model="item.company" class="sun_verify"   data-verflykey="company" data-vervaluetype="array">
+                    <div class="sun_verify_require"  data-requirekey="company" data-vervaluetype="array"></div>
+                </div>
+                <div class="demo__content_item">
+                    担任职务
+                    <input type="text" v-model="item.jobTitle"  class="sun_verify" data-verflykey="jobTitle" data-vervaluetype="array">
+                    <div class="sun_verify_require" data-requirekey="jobTitle" data-vervaluetype="array"></div>
+                </div>
+            </div>
+            <div class="demo__wrap_content demo__layout_row">
+                <div class="demo__content_full" style="padding-left: 20px">联系人手机号码</div>
+                <input  v-model="item.phoneNum" style="margin: 0 20px;" class="sun_verify" data-verflykey="phoneNum" data-vervaluetype="array"/>
+                <div class="sun_verify_require" data-requirekey="phoneNum" data-vervaluetype="array"></div>
+            </div>
+            <div class="demo__wrap_content demo__layout_row">
+                <div class="demo__content_full sun_verify" style="padding-left: 20px">职责业绩</div>
+                <textarea  class="demo__el_text sun_verify" cols="30" rows="10" v-model="item.duty" data-verflykey="duty" data-vervaluetype="array"></textarea>
+                <div class="sun_verify_require" data-requirekey="duty" data-vervaluetype="array"></div>
+            </div>
+            <div class="demo__wrap_content demo__layout_row">
+                <div class="demo__content_full sun_verify" style="padding-left: 20px">备注</div>
+                <textarea  class="demo__el_text sun_verify" cols="30" rows="10" v-model="item.remark" data-verflykey="remark" data-vervaluetype="array"></textarea>
+                <div class="sun_verify_require" data-requirekey="remark" data-vervaluetype="array"></div>
+            </div>
+        </div>
+        <div class="demo__head">
+            <button @click="add">添加工作经历</button>
+            <button @click="test">测试验证</button>
+        </div>
+    </div>
+</body>
+<script src="vue.js"></script>
+<script src="sun_verifyForObject.min.js"></script>
+<script>
+    var app = new Vue({
+        el: "#app",
+        data: {
+            workList: [{
+                company: "XXXX人力资源集团",
+                jobTitle: "前",
+                phoneNum: "153",
+                duty: "",
+                remark: "",
+            }],
+            base: {
+                name: "",
+                birthdate: "",
+                gender: 0,
+                address: "",
+                intro:""
+            },
+            workVm: null,
+            baseVm: null
+        },
+        created: function () {
+            this.initVerData()
+        },
+        methods: {
+            // 触发验证
+            test: function () {
+                this.baseVm.test() &&this.workVm.test();
+            },
+            add: function () {
+                this.workList.push({
+                    company: "",
+                    jobTitle: "",
+                    phoneNum: "",
+                    duty: "",
+                    remark: ""
+                })
+            },
+            // 初始化插件
+            initVerData: function () {
+                this.workVm = new SunVerifyForObject(this.workList,
+                    {
+                    config: {  // 全局设置
+                        swicthRequire: true, // 是否开启require功能
+                        requireOption: {  // require必须设置
+                            mainClass: "sun_verify", // 指定表单元素class
+                            requireClass: "sun_verify_require" // 指定require元素class
+                        },
+                        switchOutsideRules: true, // 是否开启外部配置
+                        outSideRulesConfig: { // 设置外部配置
+                            actionTypeMap:{    // 设置自定义动作配置
+                               hit: "敲击"      // 设置自定义动作
+                            },
+                            rulesFn: {         // 设置外部规则配置
+                                Number: {      // 在指定类型下配置自定义规则
+                                   phone: function (val, query) {  // 配置自定义规则phone
+                                       if ((/^1[3456789]\d{9}$/.test(val))) {
+                                           return true // 通过验证直接返回true即可
+                                       }
+                                       return {  // 验证未通过 需要返回一个对象
+                                           across: false, // 是否通过across 标识为 false
+                                           text: "请输入正确的手机号" // 自定义提示文字
+                                       }
+                                   }
+                                }
+                            }
+                        }
+                    },
+                    rules: {
+                        company: {
+                            type: String, // 指定验证类型 目前四种类型 String/Array/Number/Object
+                            /*  指定规则类型（规则类型是验证类型的子类）内部类型包含empty/min/max。
+                             *  ":" 冒号， 在max,min规则中代表着阈值
+                             *  "=" 等号， 在在max,min规则中代表包含
+                             * */
+                            rules: ["empty:请输入公司名称", "max:10=", "min:2="],
+                            labelText: "公司名称",
+                            actionType: "input",
+                        },
+                        jobTitle: {
+                            type: String,
+                            /*
+                             *  ":" 冒号， 在除了min, max规则的其他规则中 可以指定验证不通过的自定义提示文字。
+                             * */
+                            rules: ["empty:请输入担任职务", "max:10=", "min:2="],
+                            labelText: "担任职务",
+                            actionType: "input",
+                        },
+                        phoneNum: {
+                            type: Number,
+                            rules: ["empty","phone"],
+                            labelText: "联系手机号",
+                            /*
+                             * 使用自定义类型的 actionType
+                             * 该类型 "hit"
+                             * 在配置中指定了"敲击"
+                             * */
+                            actionType: "hit",
+                        },
+                        duty: {
+                            type: String,
+                            rules: [function (val) {
+                                if (!/^[\u4e00-\u9fa5]+$/gi.test(val)) {
+                                    return {
+                                        across: false,
+                                        text: "职责业绩只能输入汉字"
+                                    }
+                                };
+                                return true
+
+                            }, "max:10", "min:2="],
+                            labelText: "担任职务",
+                            actionType: "input",
+                        },
+                        remark: {
+                            type: String,
+                            rules: ["empty", "max:10", "min:2="],
+                            labelText: "备注",
+                            actionType: "hit",
+                        }
+                    }
+                });
+                this.workList = this.workVm.getObject();
+                this.baseVm = new SunVerifyForObject(this.base, {
+                    config: {  // 全局设置
+                        swicthRequire: true, // 是否开启require功能
+                        requireOption: {  // require必须设置
+                            mainClass: "sun_verify_base", // 指定表单元素class
+                            requireClass: "sun_verify_require_base", // 指定require元素class
+                            allowance: 100, // 余量设置, 滚动的余量
+                        }
+                    },
+                    rules: {
+                        name: {
+                            type: String, // 指定验证类型 目前四种类型 String/Array/Number/Object
+                            /*  指定规则类型（规则类型是验证类型的子类）内部类型包含empty/min/max。
+                             *  ":" 冒号， 在max,min规则中代表着阈值
+                             *  "=" 等号， 在在max,min规则中代表包含
+                             * */
+                            rules: ["empty:请输入您的姓名", "max:10="],
+                            labelText: "姓名",
+                            actionType: "input",
+                        },
+                        birthdate: {
+                            type: String,
+                            /*
+                             *  ":" 冒号， 在除了min, max规则的其他规则中 可以指定验证不通过的自定义提示文字。
+                             * */
+                            rules: ["empty", "max:10=", "min:2="],
+                            labelText: "生日",
+                            actionType: "input",
+                        },
+                        address: {
+                            type: String,
+                            rules: ["empty"],
+                            labelText: "地址",
+                            actionType: "input",
+                        },
+                        intro: {
+                            type: String,
+                            rules: ["empty", "max:100=", "min:2="],
+                            labelText: "个人简介",
+                            actionType: "input",
+                        },
+                        gender:{
+                            type: Number,
+                            rules: ["empty"],
+                            labelText: "性别",
+                            actionType: "select",
+                        }
+                    }
+                });
+                this.base = this.baseVm.getObject();
+                this.baseVm.$on("tirrger", function (errMsg) {
+                    console.log(errMsg)
+                })
+                this.workVm.$on("tirrger", function (errMsg) {
+                    console.log(errMsg)
+                })
+            }
+        }
+    })
+</script>
+</html>
