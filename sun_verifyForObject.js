@@ -1,63 +1,8 @@
-/**
- *    Create by Allen.sun on 2020/07/08
- *    Module: sun_verifyForObject.js
- *    Collaborator:
- *    Description: 用于常规的数据检查
- */
 
-// 开发前问题：
-// 1 是否需要require 功能？
-// 答： 确定需要require功能， 需要做成 1 可配置风格 2 尽可能的自动化。
-//      初步的构想： 通过对表单元素指定class来确定元素位置， 并在元素上确定键。动态赋予require 这里可能无法使用框架来实现
-
-
-// 2 适用的广泛性？ 是否包括， 空值/最大/最小/数据类型/与指定键值发生比较
-// 答： 适应性一定要满足灵活和广泛， 不仅需要包含，以上的基本和动态比较， 还需要包含手动比较，和叠加比较。
-
-
-// 3 工具性质： 1 数据剪裁
-// 答： 插件可以带有工具性质。尽量可以满足用户对数据操作的需求
-
-
-// 4 性能是否最优
-// 答：组件尽可能减少遍历次数， 适当引入缓存机制。可大幅度提高组件性能
-
-
-
-// 5 可配置性，与易用性
-// 答：需要满足灵活的配置， 而且要设置最基础的配置来保证在简单场景下的易用性
-
-// 6 是否可外部配置
-// 答： 初步设想， 可以外部导入配置
-
-
-// 项目架构问题：
-// 1 如何架构？ 做vue独有还是独立组件。
-// 答： 该组件主要做的是数据的处理和验证。 与其他框架的耦合性需要降低。 但是可以针对框架做一些优化方案
-
-// 2 数据类型分为几类？
-// 答： Array/Object/Number/String/Boolean
-
-// 3 代码层面如何架构？
-// 答： 洋葱式 程序设计， 核心与外层耦合， 外层功能是内部封装的实现
-
-// 4  Array/Object/Number/String/Boolean 几种基本类型作为核心方法， 那么在校验时有什么异同和难度？
-// 答：组件想作为配置插入式的设计，几种作为基础类型，校验的方式也是不同的， 比如 Array的空 和 Object的空 String的空是不同的， 那么就需要同一个内置类型，
-// 在不同基本类型下的表现有所不同
-
-// 5 上面所说的插入式设计， 打算如何插入， 考虑没考虑过代码的层级问题。
-// 答： 没一个方法都会流出一个口，作为配置传入的入口， 一旦传入则就会生成一个固定的验证config。
-// 该config 会实现在第一层级， 不会嵌套进 洋葱式 代码中。
-
-
-
-
-// 灵感：
-// 1 针对传入的对象做一个深度检测， 如果对应的值发生改变则实时的动态提示
-// 问题： 提示或者 回调的频率， 部分赋值操作 频繁， 有没有解决方式
-// 2 数据修正： 当产生错误自动修正为最接近的值
-
-// 开始架构项目
+/*  更新日志
+ *  2020/07/30 增加滚动的余量设置allowance
+ *
+* */
 
 (function ($w) {
 
@@ -257,7 +202,7 @@
                 clearTimeout(timer);
             }, time || 200)
         },
-        _scrollAnimation(rect, el) {
+        _scrollAnimation(rect, el, allowance) {
             function getPos(obj) {
                 var l = 0, t = 0;
                 while (obj) {
@@ -268,7 +213,7 @@
                 return { left: l, top: t };
             }
             window.scroll({
-                top: getPos(el).top - 300,
+                top: getPos(el).top - allowance,
                 behavior: 'smooth'
             });
         },
@@ -279,7 +224,6 @@
             }
         }
     };
-
 
     window._sun_utils = _utils;
 
@@ -491,25 +435,29 @@
         // require
         requireEngine: {
             _initRequire: function () {
+                console.log(this.config.requireOption.allowance);
                 // 判断配置中的require
                 var config = this.config || {};
                 var needRequire = config.swicthRequire;
                 var requireOption = {}, mainClass = void 0, requireClass = void 0;
                 if (!needRequire) return;
-                requireOption = config.requireOption || null;
+                requireOption = config.requireOption || {};
                 if (!requireOption) {
                     _utils.createLogger("svf", "warn", "you opened the function require set true, you must set option requireOption!");
                     return
                 }
                 requireClass = requireOption.requireClass;
                 mainClass = requireOption.mainClass;
+
+                this.allowance = requireOption.allowance || 300;
+
                 if (!mainClass || !requireClass) {
                     _utils.createLogger("svf", "warn", "you must set mainClass and requireClass, call me how to do it");
                     return
                 };
                 _core.requireEngine.getRquiredEls.call(this, mainClass, requireClass);
             },
-            getRquiredEls: function (mainClass, requireClass) {
+            getRquiredEls: function (mainClass, requireClass, allowance) {
                 var mainElsMap = {};
                 var requiredElsMap = {};
 
@@ -546,7 +494,7 @@
                 if (mEl) {
                     !closeScroll && _core.requireEngine.setTip(mEl);
                     !closeScroll && this.requireErrList.indexOf(key) == -1 && this.requireErrList.push(key);
-                    !closeScroll && _core.requireEngine.scrollToEl(mEl);
+                    !closeScroll && _core.requireEngine.scrollToEl(mEl, this.allowance);
                 };
 
                 if (rEl) {
@@ -582,9 +530,9 @@
                     el.innerText = "";
                 }
             },
-            scrollToEl: function (el) {
+            scrollToEl: function (el, allowance) {
                 var pos = _utils._computedTarPos(el);
-                _utils._scrollAnimation(pos, el)
+                _utils._scrollAnimation(pos, el, allowance)
             },
             resetRequire: function () {
                 function clearEls(el) {
